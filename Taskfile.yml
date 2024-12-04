@@ -6,6 +6,13 @@ tasks:
     desc: build brainfuck VM for current platform
     cmds:
       - go build -v -o ./bin/brainfuckvm ./main.go
+      
+  test:
+    silent: true
+    aliases: [t]
+    desc: run all tests
+    cmds:
+      - go test -v ./...
 
   clean:
     silent: true
