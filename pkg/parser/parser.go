@@ -6,6 +6,8 @@ import (
 	"github.com/maximekuhn/brainfuck/pkg/lexer"
 )
 
+// TODO: check for EOF
+
 type Parser struct {
 	tokens    []lexer.Token
 	currIdx   int

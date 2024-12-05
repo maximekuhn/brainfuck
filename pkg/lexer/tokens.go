@@ -1,5 +1,7 @@
 package lexer
 
+// TODO: TokenEOF (?)
+
 type Token string
 
 const (

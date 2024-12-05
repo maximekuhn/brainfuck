@@ -1,6 +1,11 @@
 package lexer
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
+
+// TODO: appropriatly handle garbage cleaning and test it
 
 type Lexer struct {
 	input   string
@@ -9,7 +14,7 @@ type Lexer struct {
 
 func NewLexer(input string) *Lexer {
 	return &Lexer{
-		input:   input,
+		input:   removeGarbageInput(input),
 		currIdx: 0,
 	}
 }
@@ -56,5 +61,12 @@ func toToken(c rune) (Token, error) {
 	case ']':
 		return TokenLoopEnd, nil
 	}
-	return TokenNext, fmt.Errorf("unknown token: %c", c)
+	return TokenNext, fmt.Errorf("unknown token: '%c'", c)
+}
+
+func removeGarbageInput(input string) string {
+	noWhitespaces := strings.ReplaceAll(input, " ", "")
+	noCR := strings.ReplaceAll(noWhitespaces, "\r", "")
+	noLF := strings.ReplaceAll(noCR, "\n", "")
+	return noLF
 }

@@ -34,7 +34,7 @@ func TestLexer(t *testing.T) {
 			title:          "Invalid token",
 			input:          "<>+/[",
 			expectedTokens: []Token{},
-			expectedError:  errors.New("unknown token: /"),
+			expectedError:  errors.New("unknown token: '/'"),
 		},
 		{
 			title:          "Only one token",
