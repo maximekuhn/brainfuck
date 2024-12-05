@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"errors"
 	"reflect"
 	"strings"
 	"testing"
@@ -31,10 +30,13 @@ func TestLexer(t *testing.T) {
 			expectedError: nil,
 		},
 		{
-			title:          "Invalid token",
-			input:          "<>+/[",
-			expectedTokens: []Token{},
-			expectedError:  errors.New("unknown token: '/'"),
+			title: "Invalid token should be considered as a comment",
+			input: "<>+/[",
+			expectedTokens: []Token{
+				TokenPrevious, TokenNext,
+				TokenIncrement, TokenLoopStart,
+			},
+			expectedError: nil,
 		},
 		{
 			title:          "Only one token",
@@ -48,11 +50,14 @@ func TestLexer(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 			l := NewLexer(test.input)
 			actualTokens, err := l.Lex()
-			if test.expectedError != nil && test.expectedError.Error() != err.Error() {
+			if test.expectedError != nil && err != nil && test.expectedError.Error() != err.Error() {
 				t.Fatalf("Lex(): expected err %v got %v", test.expectedError, err)
 			}
-			if test.expectedError != nil && test.expectedError.Error() == err.Error() {
+			if test.expectedError != nil && err != nil && test.expectedError.Error() == err.Error() {
 				return
+			}
+			if test.expectedError != nil && err == nil {
+				t.Fatalf("Lex(): expected err %v got ok", test.expectedError)
 			}
 			if !reflect.DeepEqual(test.expectedTokens, actualTokens) {
 				t.Errorf("Lex(): expected tokens %s got %s", formatTokens(test.expectedTokens), formatTokens(actualTokens))

@@ -5,8 +5,6 @@ import (
 	"strings"
 )
 
-// TODO: appropriatly handle garbage cleaning and test it
-
 type Lexer struct {
 	input   string
 	currIdx int
@@ -65,8 +63,24 @@ func toToken(c rune) (Token, error) {
 }
 
 func removeGarbageInput(input string) string {
-	noWhitespaces := strings.ReplaceAll(input, " ", "")
-	noCR := strings.ReplaceAll(noWhitespaces, "\r", "")
-	noLF := strings.ReplaceAll(noCR, "\n", "")
-	return noLF
+	// the current method isn't very optimized as we will read the whole input once
+	// and remove all characters that are considered as comments (all except +-<>.,[])
+	// maybe one day it will be re-worked but for a toy project like this it is perfectly fine
+	var cleaned strings.Builder
+	for _, l := range input {
+		if isAllowedLitteral(l) {
+			cleaned.WriteRune(l)
+		}
+	}
+	return cleaned.String()
+}
+
+func isAllowedLitteral(l rune) bool {
+	var allowedLitterals = []rune{'+', '-', '<', '>', '.', ',', '[', ']'}
+	for _, al := range allowedLitterals {
+		if l == al {
+			return true
+		}
+	}
+	return false
 }
