@@ -35,6 +35,13 @@ func (i *Interpreter) Run(ast *parser.Ast) error {
 	return nil
 }
 
+func (i *Interpreter) Dump() ([]int, int) {
+	// make a copy to prevent outside modification of interpreter's memory
+	tmp := make([]int, memorySize)
+	copy(tmp, i.memory[:])
+	return tmp, i.ptr
+}
+
 func (i *Interpreter) evalNode(node *parser.Node) error {
 	switch node.Type {
 	case parser.NodeIncrement:
