@@ -13,8 +13,8 @@ github.com/maximekuhn/brainfuck
 
 ## Usage as CLI tool(s)
 To build and use the CLI tools, you will need:
-- (Go)[https://go.dev/] (project version is 1.23.x)
-- (Task)[https://taskfile.dev/]
+- [Go](https://go.dev/) (project version is 1.23.x)
+- [Task](https://taskfile.dev/)
 
 Build the tools:
 ```shell
