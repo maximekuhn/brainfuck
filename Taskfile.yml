@@ -3,9 +3,9 @@ tasks:
   build:
     silent: true
     aliases: [b]
-    desc: build brainfuck VM for current platform
+    desc: build all brainfuck executable tools for current platform
     cmds:
-      - go build -v -o ./bin/brainfuckvm ./main.go
+      - go build -v -o ./bin/interpreter ./cmd/interpreter/main.go
       
   test:
     silent: true
