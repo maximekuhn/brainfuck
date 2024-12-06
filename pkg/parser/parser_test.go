@@ -84,6 +84,37 @@ func TestParser(t *testing.T) {
 			}},
 			expectedError: nil,
 		},
+		{
+			title: "Hello world input program",
+			tokens: []lexer.Token{ // ,[>,]<[<]>[.>]
+				lexer.TokenInput,                                                            // ,
+				lexer.TokenLoopStart, lexer.TokenNext, lexer.TokenInput, lexer.TokenLoopEnd, // [>,]
+				lexer.TokenPrevious,                                           // <
+				lexer.TokenLoopStart, lexer.TokenPrevious, lexer.TokenLoopEnd, // [<]
+				lexer.TokenNext,                                                              // >
+				lexer.TokenLoopStart, lexer.TokenOutput, lexer.TokenNext, lexer.TokenLoopEnd, // [.>]
+
+			},
+			expectedAst: &Ast{
+				Statements: []*Node{
+					{Type: NodeInput, Child: nil},
+					{Type: NodeLoop, Child: []*Node{
+						{Type: NodeNext, Child: nil},
+						{Type: NodeInput, Child: nil},
+					}},
+					{Type: NodePrevious, Child: nil},
+					{Type: NodeLoop, Child: []*Node{
+						{Type: NodePrevious, Child: nil},
+					}},
+					{Type: NodeNext, Child: nil},
+					{Type: NodeLoop, Child: []*Node{
+						{Type: NodeOutput, Child: nil},
+						{Type: NodeNext, Child: nil},
+					}},
+				},
+			},
+			expectedError: nil,
+		},
 	}
 
 	for _, test := range testcases {

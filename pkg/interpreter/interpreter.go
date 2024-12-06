@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/maximekuhn/brainfuck/pkg/parser"
@@ -84,7 +85,21 @@ func (i *Interpreter) evalNodePrevious() error {
 }
 
 func (i *Interpreter) evalNodeInput() error {
-	return errors.New("TODO: implement evalNodeInput")
+	b := make([]byte, 1)
+	n, err := i.in.Read(b)
+	if err != nil {
+		if errors.Is(err, io.EOF) {
+			// nothing to read
+			return nil
+		}
+		return err
+	}
+	if n != 1 {
+		return fmt.Errorf("in.Read(): expected to read 1 byte but read %d", n)
+	}
+	val := int(b[0])
+	i.memory[i.ptr] = val
+	return nil
 }
 
 func (i *Interpreter) evalNodeOutput() error {

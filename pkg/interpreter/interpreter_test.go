@@ -3,7 +3,11 @@ package interpreter
 import (
 	"bytes"
 	_ "embed"
+	"errors"
+	"fmt"
 	"io"
+	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -14,16 +18,29 @@ import (
 //go:embed testdata/helloworld.bf
 var srcHelloWorldBf string
 
+//go:embed testdata/helloworldInput.bf
+var srcHelloWorldInputBf string
+
 func TestInterpreterRun(t *testing.T) {
 	testcases := []struct {
 		title          string
-		input          string
-		expectedOutput string
+		ast            *parser.Ast
+		input          string // act as stdin (ASCII)
+		expectedOutput string // act as stdout
 		expectedError  error
 	}{
 		{
 			title:          "Hello world",
-			input:          srcHelloWorldBf,
+			ast:            getAst(srcHelloWorldBf),
+			input:          "",
+			expectedOutput: "Hello, World!",
+			expectedError:  nil,
+		},
+		{
+			title: "Hello world with input",
+			ast:   getAst(srcHelloWorldInputBf),
+			// 'Hello, World!' in ASCII
+			input:          "72-101-108-108-111-44-32-87-111-114-108-100-33",
 			expectedOutput: "Hello, World!",
 			expectedError:  nil,
 		},
@@ -31,13 +48,10 @@ func TestInterpreterRun(t *testing.T) {
 
 	for _, test := range testcases {
 		t.Run(test.title, func(t *testing.T) {
-			ast, err := getAst(test.input)
-			if err != nil {
-				t.Fatalf("getAst(): expected ok got err %v", err)
-			}
 			out := bytes.NewBuffer([]byte{})
-			i := NewInterpreter(ast, strings.NewReader(test.input), out)
-			err = i.Run()
+			in := newTestStdin(test.input)
+			i := NewInterpreter(test.ast, in, out)
+			err := i.Run()
 			if test.expectedError != nil && test.expectedError.Error() != err.Error() {
 				t.Fatalf("Run(): expected err %v got %v", test.expectedError, err)
 			}
@@ -59,16 +73,63 @@ func TestInterpreterRun(t *testing.T) {
 	}
 }
 
-func getAst(input string) (*parser.Ast, error) {
-	lexer := lexer.NewLexer(input)
+func getAst(src string) *parser.Ast {
+	lexer := lexer.NewLexer(src)
 	tokens, err := lexer.Lex()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	parser := parser.NewParser(tokens)
 	ast, err := parser.Parse()
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return ast, nil
+	return ast
+}
+
+// testStdin is a structure that "mocks" STDIN.
+// It contains a list of ASCII values that will be used as input whenever the brainfuck
+// program tries to read something from the input source.
+type testStdin struct {
+	values []int
+}
+
+func newTestStdin(input string) *testStdin {
+	fragments := strings.Split(input, "-")
+	if len(fragments) == 1 && fragments[0] == input {
+		return &testStdin{
+			values: []int{},
+		}
+	}
+	values := make([]int, 0)
+	for _, f := range fragments {
+		val, err := strconv.Atoi(f)
+		if err != nil {
+			panic(err)
+		}
+		values = append(values, val)
+	}
+	slices.Reverse(values)
+	return &testStdin{
+		values: values,
+	}
+}
+
+func (ts *testStdin) hasNext() bool {
+	return len(ts.values) > 0
+}
+
+func (ts *testStdin) Read(b []byte) (n int, err error) {
+	if !ts.hasNext() {
+		return 0, io.EOF
+	}
+	if len(b) < 1 {
+		return 0, errors.New("target buffer is not big enough (expected minimum 1 byte)")
+	}
+	idx := len(ts.values) - 1
+	val := ts.values[idx]
+	ts.values = ts.values[:idx]
+	b[0] = byte(val)
+	return 1, nil
+
 }
