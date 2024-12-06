@@ -1,5 +1,5 @@
 # Brainfuck
-This project provides a handful set of tools for the [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck).  
+This project provides a handful set of tools for the [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) language.  
 It currenctly includes:
 - a lexer
 - a parser
@@ -16,7 +16,7 @@ To build and use the CLI tools, you will need:
 - (Go)[https://go.dev/] (project version is 1.23.x)
 - (Task)[https://taskfile.dev/]
 
-First, build the tools:
+Build the tools:
 ```shell
 task build
 ```
