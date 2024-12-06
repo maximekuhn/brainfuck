@@ -11,16 +11,14 @@ import (
 const memorySize int = 3_000
 
 type Interpreter struct {
-	ast    *parser.Ast
 	in     io.Reader
 	out    io.Writer
 	memory [memorySize]int
 	ptr    int
 }
 
-func NewInterpreter(ast *parser.Ast, in io.Reader, out io.Writer) *Interpreter {
+func NewInterpreter(in io.Reader, out io.Writer) *Interpreter {
 	return &Interpreter{
-		ast:    ast,
 		in:     in,
 		out:    out,
 		memory: [memorySize]int{},
@@ -28,8 +26,8 @@ func NewInterpreter(ast *parser.Ast, in io.Reader, out io.Writer) *Interpreter {
 	}
 }
 
-func (i *Interpreter) Run() error {
-	for _, node := range i.ast.Statements {
+func (i *Interpreter) Run(ast *parser.Ast) error {
+	for _, node := range ast.Statements {
 		if err := i.evalNode(node); err != nil {
 			return err
 		}

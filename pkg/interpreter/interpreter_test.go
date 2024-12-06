@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"errors"
-	"fmt"
 	"io"
 	"slices"
 	"strconv"
@@ -50,8 +49,8 @@ func TestInterpreterRun(t *testing.T) {
 		t.Run(test.title, func(t *testing.T) {
 			out := bytes.NewBuffer([]byte{})
 			in := newTestStdin(test.input)
-			i := NewInterpreter(test.ast, in, out)
-			err := i.Run()
+			i := NewInterpreter(in, out)
+			err := i.Run(test.ast)
 			if test.expectedError != nil && test.expectedError.Error() != err.Error() {
 				t.Fatalf("Run(): expected err %v got %v", test.expectedError, err)
 			}
