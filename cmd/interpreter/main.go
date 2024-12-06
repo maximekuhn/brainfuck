@@ -7,9 +7,7 @@ import (
 	"github.com/maximekuhn/brainfuck/cmd/interpreter/interactive"
 )
 
-func usage(pname string) string {
-	return fmt.Sprintf("usage: ./%s [FILEPATH]", pname)
-}
+// TODO: handle filepath opt
 
 func main() {
 	interactive := flag.Bool("interactive", false, "start interactive interpreter")
