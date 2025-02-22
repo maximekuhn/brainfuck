@@ -5,27 +5,30 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/maximekuhn/brainfuck/pkg/interpreter"
 	"github.com/maximekuhn/brainfuck/pkg/lexer"
 	"github.com/maximekuhn/brainfuck/pkg/parser"
 )
 
-// TODO: handle input (,)
-
 type InteractiveInterpreter struct {
 	itp *interpreter.Interpreter
+	ir  *inputReader
 }
 
 func NewInteractiveInterpreter() *InteractiveInterpreter {
-	itp := interpreter.NewInterpreter(strings.NewReader(""), os.Stdout)
-	return &InteractiveInterpreter{itp}
+	inputReader := inputReader{}
+	itp := interpreter.NewInterpreter(&inputReader, os.Stdout)
+	return &InteractiveInterpreter{
+		itp: itp,
+		ir:  &inputReader,
+	}
 }
 
 func (i *InteractiveInterpreter) Run() error {
 	fmt.Println("type `help` to see the list of available commands")
 	scanner := bufio.NewScanner(os.Stdin)
+	i.ir.setScanner(scanner)
 	prompt()
 	for scanner.Scan() {
 		input := scanner.Text()
