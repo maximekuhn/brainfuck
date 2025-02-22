@@ -25,15 +25,20 @@ jobs:
         # TODO: fix version
         run: go install github.com/go-task/task/v3/cmd/task@latest
 
+      - name: Install templ
+        run: go install github.com/a-h/templ/cmd/templ@v0.3.819
+
       - name: check fmt
         run: |
           [ $(gofmt -l -s . | wc -l) -eq 0 ] && exit 0 || exit 1
 
-      - name: check lint
-        uses: golangci/golangci-lint-action@v6
-
+        # build must happen before lint, because templ generated files
+        # are not checkout in git, which makes the linter complain
       - name: check build
         run: task build
+
+      - name: check lint
+        uses: golangci/golangci-lint-action@v6
 
       - name: check test
         run: task test
