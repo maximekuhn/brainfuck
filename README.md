@@ -5,6 +5,7 @@ It currenctly includes:
 - a parser
 - an interpreter
 - an interactive interpreter you can run from the terminal
+- a web application running the interpreter (visit https://brainfuck.maximekuhn.dev for a demo)
 
 ## Usage as a library
 To use the provided tools in Go code, you can simply add it as a dependecy in your `go.mod` file.
