@@ -26,7 +26,8 @@ jobs:
         run: go install github.com/go-task/task/v3/cmd/task@latest
 
       - name: check fmt
-        run: [ $(gofmt -l -s . | wc -l) -eq 0 ] && exit 0 || exit 1
+        run: |
+          [ $(gofmt -l -s . | wc -l) -eq 0 ] && exit 0 || exit 1
 
       - name: check lint
         uses: golangci/golangci-lint-action@v6
