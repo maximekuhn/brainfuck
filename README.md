@@ -4,6 +4,7 @@ It currenctly includes:
 - a lexer
 - a parser
 - an interpreter
+- an interactive interpreter you can run from the terminal
 
 ## Usage as a library
 To use the provided tools in Go code, you can simply add it as a dependecy in your `go.mod` file.
