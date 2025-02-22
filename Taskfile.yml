@@ -5,12 +5,20 @@ tasks:
     cmds:
       - task --list-all
 
+  templ:
+    silent: true
+    internal: true
+    cmds:
+      - templ generate
+
   build:
     silent: true
     aliases: [b]
+    deps: [templ]
     desc: build all brainfuck executable tools for current platform
     cmds:
       - go build -v -o ./bin/interpreter ./cmd/interpreter/main.go
+      - go build -v -o ./bin/webapp ./cmd/webapp/main.go
       
   test:
     silent: true

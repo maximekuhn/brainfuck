@@ -1,0 +1,30 @@
+package ui
+
+templ CodeEditor() {
+	<div class="code-editor">
+		<h2>code editor</h2>
+		<form
+			hx-post="/"
+			hx-trigger="submit"
+			hx-target="#index-run-output-div"
+			hx-swap="innerHTML"
+		>
+			<textarea
+				id="bf-editor"
+				name="bf-code"
+				style="width: 90%; height: 200px;"
+				placeholder="Brainfuck code here..."
+			></textarea>
+			<textarea
+				id="bf-input-editor"
+				name="bf-input"
+				style="width: 90%"
+				placeholder="input"
+			></textarea>
+			<div>
+				<button type="button" onclick="resetCodeEditor()">Reset</button>
+				<button type="submit">Run</button>
+			</div>
+		</form>
+	</div>
+}
