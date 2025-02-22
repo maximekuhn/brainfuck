@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/maximekuhn/brainfuck/cmd/interpreter/interactive"
+	"github.com/maximekuhn/brainfuck/internal/itritp"
 )
 
 // TODO: handle filepath opt
@@ -30,6 +30,5 @@ func main() {
 
 func runInteractiveInterpretor() error {
 	fmt.Println("starting interactive interpreter...")
-	itir := interactive.NewInteractiveInterpreter()
-	return itir.Run()
+	return itritp.NewInteractiveInterpreter().Run()
 }

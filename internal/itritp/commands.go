@@ -1,4 +1,4 @@
-package interactive
+package itritp
 
 type commandType int
 
