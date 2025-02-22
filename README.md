@@ -17,6 +17,7 @@ github.com/maximekuhn/brainfuck
 To build and use the CLI tools, you will need:
 - [Go](https://go.dev/) (project version is 1.23.x)
 - [Task](https://taskfile.dev/)
+- [Templ](https://templ.guide/)
 
 Build the tools:
 ```shell
