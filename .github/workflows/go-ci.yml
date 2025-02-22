@@ -1,0 +1,39 @@
+name: Go CI / check
+
+on:
+  push:
+    branches:
+      - "**"
+
+# don't waste CI time by cancelling previous workflow on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go 1.23
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23
+
+      - name: Install task
+        # TODO: fix version
+        run: go install github.com/go-task/task/v3/cmd/task@latest
+
+      - name: check fmt
+        run: [ $(gofmt -l -s . | wc -l) -eq 0 ] && exit 0 || exit 1
+
+      - name: check lint
+        uses: golangci/golangci-lint-action@v6
+
+      - name: check build
+        run: task build
+
+      - name: check test
+        run: task test
+
