@@ -73,7 +73,7 @@ func (h *Handler) post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	output, err := h.service.runCode(code, input)
+	output, err := h.service.runCode(r.Context(), code, input)
 	if err != nil {
 		// for now, we will consider the user has sent an invalid brainfuck code
 		h.logger.Error(

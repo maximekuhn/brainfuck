@@ -2,12 +2,16 @@ package webapp
 
 import (
 	"bytes"
+	"context"
 	"io"
+	"time"
 
 	"github.com/maximekuhn/brainfuck/pkg/interpreter"
 	"github.com/maximekuhn/brainfuck/pkg/lexer"
 	"github.com/maximekuhn/brainfuck/pkg/parser"
 )
+
+const execTimeout = 500 * time.Millisecond
 
 type service struct {
 }
@@ -16,7 +20,33 @@ func newService() *service {
 	return &service{}
 }
 
-func (s *service) runCode(code, inputArgs string) (string, error) {
+func (s *service) runCode(ctx context.Context, code, inputArgs string) (string, error) {
+	timeoutCtx, cancel := context.WithTimeout(ctx, execTimeout)
+	defer cancel()
+
+	resChan := make(chan string, 1)
+	errChan := make(chan error, 1)
+
+	go func() {
+		output, err := runCode(code, inputArgs)
+		if err != nil {
+			errChan <- err
+			return
+		}
+		resChan <- output
+	}()
+
+	select {
+	case output := <-resChan:
+		return output, nil
+	case runErr := <-errChan:
+		return "", runErr
+	case <-timeoutCtx.Done():
+		return "", timeoutCtx.Err()
+	}
+}
+
+func runCode(code, inputArgs string) (string, error) {
 	lexer := lexer.NewLexer(code)
 	toks, err := lexer.Lex()
 	if err != nil {
