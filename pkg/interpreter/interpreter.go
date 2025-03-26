@@ -27,6 +27,8 @@ func NewInterpreter(in io.Reader, out io.Writer) *Interpreter {
 	}
 }
 
+// Run executes the input ast and return nil if the execution was successfull.
+// If the context is canceled in the meantime, this function will return an error.
 func (i *Interpreter) Run(ctx context.Context, ast *parser.Ast) error {
 	for _, node := range ast.Statements {
 		select {
