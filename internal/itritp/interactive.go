@@ -64,6 +64,9 @@ func (i *InteractiveInterpreter) handleCmd(cmd *command) error {
 	case commandHelp:
 		i.handleCmdHelp()
 		return nil
+	case commandReset:
+		i.handleCmdReset()
+		return nil
 	default:
 		// unreachable
 		return fmt.Errorf("command '%s' can not be handled", cmd)
@@ -108,6 +111,10 @@ func (i *InteractiveInterpreter) handleCmdRun(cmd *command) error {
 	defer cancel()
 
 	return i.itp.Run(timeoutCtx, ast)
+}
+
+func (i *InteractiveInterpreter) handleCmdReset() {
+	i.itp = interpreter.NewInterpreter(i.ir, os.Stdout)
 }
 
 func (i *InteractiveInterpreter) handleCmdHelp() {
