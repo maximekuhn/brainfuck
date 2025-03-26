@@ -1,6 +1,7 @@
 package interpreter
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -26,10 +27,15 @@ func NewInterpreter(in io.Reader, out io.Writer) *Interpreter {
 	}
 }
 
-func (i *Interpreter) Run(ast *parser.Ast) error {
+func (i *Interpreter) Run(ctx context.Context, ast *parser.Ast) error {
 	for _, node := range ast.Statements {
-		if err := i.evalNode(node); err != nil {
-			return err
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			if err := i.evalNode(ctx, node); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -42,7 +48,7 @@ func (i *Interpreter) Dump() ([]int, int) {
 	return tmp, i.ptr
 }
 
-func (i *Interpreter) evalNode(node *parser.Node) error {
+func (i *Interpreter) evalNode(ctx context.Context, node *parser.Node) error {
 	switch node.Type {
 	case parser.NodeIncrement:
 		return i.evalNodeIncrement()
@@ -57,7 +63,7 @@ func (i *Interpreter) evalNode(node *parser.Node) error {
 	case parser.NodeInput:
 		return i.evalNodeInput()
 	case parser.NodeLoop:
-		return i.evalNodeLoop(node)
+		return i.evalNodeLoop(ctx, node)
 	}
 	// unreachable
 	return errors.New("unreachable")
@@ -113,12 +119,17 @@ func (i *Interpreter) evalNodeOutput() error {
 	return err
 }
 
-func (i *Interpreter) evalNodeLoop(nodeLoop *parser.Node) error {
+func (i *Interpreter) evalNodeLoop(ctx context.Context, nodeLoop *parser.Node) error {
 	for i.memory[i.ptr] != 0 {
 		for _, node := range nodeLoop.Child {
-			err := i.evalNode(node)
-			if err != nil {
-				return err
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				err := i.evalNode(ctx, node)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

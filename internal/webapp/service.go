@@ -27,14 +27,14 @@ func (s *service) runCode(ctx context.Context, code, inputArgs string) (string, 
 	resChan := make(chan string, 1)
 	errChan := make(chan error, 1)
 
-	go func() {
-		output, err := runCode(code, inputArgs)
+	go func(ctx context.Context) {
+		output, err := runCode(ctx, code, inputArgs)
 		if err != nil {
 			errChan <- err
 			return
 		}
 		resChan <- output
-	}()
+	}(timeoutCtx)
 
 	select {
 	case output := <-resChan:
@@ -46,7 +46,7 @@ func (s *service) runCode(ctx context.Context, code, inputArgs string) (string, 
 	}
 }
 
-func runCode(code, inputArgs string) (string, error) {
+func runCode(ctx context.Context, code, inputArgs string) (string, error) {
 	lexer := lexer.NewLexer(code)
 	toks, err := lexer.Lex()
 	if err != nil {
@@ -62,7 +62,7 @@ func runCode(code, inputArgs string) (string, error) {
 	in := newInputReader(inputArgs)
 	var out bytes.Buffer
 	itp := interpreter.NewInterpreter(in, &out)
-	runErr := itp.Run(ast)
+	runErr := itp.Run(ctx, ast)
 	return out.String(), runErr
 }
 

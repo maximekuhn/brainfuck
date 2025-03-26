@@ -2,9 +2,11 @@ package itritp
 
 import (
 	"bufio"
+	"context"
 	"errors"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/maximekuhn/brainfuck/pkg/interpreter"
 	"github.com/maximekuhn/brainfuck/pkg/lexer"
@@ -101,7 +103,11 @@ func (i *InteractiveInterpreter) handleCmdRun(cmd *command) error {
 	if err != nil {
 		return err
 	}
-	return i.itp.Run(ast)
+
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	return i.itp.Run(timeoutCtx, ast)
 }
 
 func (i *InteractiveInterpreter) handleCmdHelp() {

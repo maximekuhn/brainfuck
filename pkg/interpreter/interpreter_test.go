@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"bytes"
+	"context"
 	_ "embed"
 	"errors"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/maximekuhn/brainfuck/pkg/lexer"
 	"github.com/maximekuhn/brainfuck/pkg/parser"
@@ -50,7 +52,11 @@ func TestInterpreterRun(t *testing.T) {
 			out := bytes.NewBuffer([]byte{})
 			in := newTestStdin(test.input)
 			i := NewInterpreter(in, out)
-			err := i.Run(test.ast)
+
+			timeoutCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			err := i.Run(timeoutCtx, test.ast)
+
 			if test.expectedError != nil && test.expectedError.Error() != err.Error() {
 				t.Fatalf("Run(): expected err %v got %v", test.expectedError, err)
 			}
@@ -69,6 +75,26 @@ func TestInterpreterRun(t *testing.T) {
 				t.Fatalf("Run(): expected output '%s' got '%s'", test.expectedOutput, actualOutputStr)
 			}
 		})
+	}
+}
+
+func TestInterpretCancelExecution(t *testing.T) {
+	// infinite loop
+	code := "+[+]"
+	ast := getAst(code)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+
+	out := bytes.NewBuffer([]byte{})
+	in := newTestStdin("")
+	i := NewInterpreter(in, out)
+
+	err := i.Run(timeoutCtx, ast)
+	if err == nil {
+		t.Fatal("Run(): expected to get timeout error, got nil error")
+	}
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatalf("Run(): expected to get context.DeadlineExceeded, got %v", err)
 	}
 }
 
